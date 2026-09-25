@@ -1,0 +1,416 @@
+---
+title: "FIT5145 Assignment 3: NBA Player Injury Risk — Data Analysis Demonstration"
+author: "Zekai Zheng (Student ID: STUDENT_ID)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      fig.width = 9, fig.height = 5, fig.align = "center")
+```
+
+---
+
+# Dataset Overview
+
+This demonstration analyses two publicly available datasets used in the proposed NBA Player Injury Risk Prediction project:
+
+1. **`injuries_2010-2020.csv`** — NBA injury transaction records (2010–2020)  
+   Source: Kaggle — NBA Injuries 2010–2018 (extended to 2020)  
+   URL: https://www.kaggle.com/datasets/ghopkins/nba-injuries-2010-2018
+
+2. **`merged.csv`** — NBA player performance, workload tracking metrics, and injury outcomes (2022–23 season)  
+   Source: Kaggle — NBA Injury Stats 1951–2023  
+   URL: https://www.kaggle.com/datasets/loganlauton/nba-injury-stats-1951-2023
+
+These datasets together demonstrate the feasibility of constructing a multi-source feature matrix linking workload, performance, and injury outcomes for NBA players.
+
+```{r load-libraries}
+library(tidyverse)
+library(ggplot2)
+library(corrplot)
+library(scales)
+library(knitr)
+library(kableExtra)
+```
+
+---
+
+# Loading and Inspecting the Datasets
+
+## Injury Transactions Dataset (2010–2020)
+
+```{r load-injuries}
+injuries <- read_csv("injuries_2010-2020.csv", show_col_types = FALSE)
+
+# Basic inspection
+cat("Dimensions:", nrow(injuries), "rows x", ncol(injuries), "columns\n")
+cat("\nColumn names:\n")
+print(names(injuries))
+cat("\nFirst 6 rows:\n")
+kable(head(injuries), caption = "NBA Injury Transactions — First 6 Records") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE)
+```
+
+```{r injuries-summary}
+# Summary statistics
+cat("\nData types and missing values:\n")
+summary_df <- data.frame(
+  Column = names(injuries),
+  Type = sapply(injuries, class),
+  Missing = sapply(injuries, function(x) sum(is.na(x))),
+  Missing_Pct = round(sapply(injuries, function(x) mean(is.na(x))) * 100, 1)
+)
+kable(summary_df, caption = "Injury Dataset — Column Summary", row.names = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE)
+```
+
+## Performance and Workload Dataset (merged.csv)
+
+```{r load-merged}
+merged <- read_csv("merged.csv", show_col_types = FALSE)
+
+# Rename for ease of use
+names(merged) <- gsub(" ", "_", names(merged))
+
+cat("Dimensions:", nrow(merged), "rows x", ncol(merged), "columns\n")
+cat("\nColumn names:\n")
+print(names(merged))
+```
+
+```{r merged-summary-table}
+# Summary table
+summary_df2 <- data.frame(
+  Column = names(merged),
+  Type = sapply(merged, class),
+  Missing = sapply(merged, function(x) sum(is.na(x))),
+  Missing_Pct = round(sapply(merged, function(x) mean(is.na(x))) * 100, 1)
+)
+kable(summary_df2, caption = "Performance Dataset — Column Summary (all 32 features)",
+      row.names = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE,
+                font_size = 11) %>%
+  scroll_box(height = "300px")
+```
+
+---
+
+# Missing Value Analysis
+
+```{r missing-values, fig.height=6}
+# Compute missing percentages for merged dataset
+missing_pct <- merged %>%
+  summarise(across(everything(), ~ mean(is.na(.)) * 100)) %>%
+  pivot_longer(everything(), names_to = "Variable", values_to = "Missing_Pct") %>%
+  arrange(desc(Missing_Pct))
+
+# Plot
+ggplot(missing_pct, aes(x = reorder(Variable, Missing_Pct), y = Missing_Pct, fill = Missing_Pct)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_gradient(low = "#AED6F1", high = "#1A5276") +
+  labs(title = "Missing Value Rate by Variable",
+       subtitle = "NBA Performance & Workload Dataset (merged.csv)",
+       x = "Variable", y = "Missing (%)", fill = "Missing %") +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+**Interpretation:** Injury-related fields (`INJURED_ON`, `RETURNED`, `DAYS_MISSED`, `INJURED_TYPE`) show high missingness because the majority of player-season records correspond to uninjured players. This is expected given injury prevalence rates of roughly 20–25% per season in the NBA. These columns will require careful treatment during model training (e.g., imputation or binary encoding of injury occurrence as the target variable).
+
+---
+
+# Injury Prevalence Analysis
+
+## Overall Prevalence
+
+```{r injury-prevalence}
+# Classify injured vs not injured
+merged <- merged %>%
+  mutate(Injured = !is.na(INJURED_TYPE) & INJURED_TYPE != "")
+
+n_total <- nrow(merged)
+n_injured <- sum(merged$Injured)
+pct_injured <- round(n_injured / n_total * 100, 1)
+
+cat(sprintf("Total player-season records: %d\n", n_total))
+cat(sprintf("Records with injury: %d (%.1f%%)\n", n_injured, pct_injured))
+cat(sprintf("Records without injury: %d (%.1f%%)\n", n_total - n_injured, 100 - pct_injured))
+```
+
+```{r prevalence-plot}
+prevalence_df <- data.frame(
+  Status = c("Injured", "Not Injured"),
+  Count = c(n_injured, n_total - n_injured),
+  Pct = c(pct_injured, 100 - pct_injured)
+)
+
+ggplot(prevalence_df, aes(x = Status, y = Count, fill = Status)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = paste0(Pct, "%\n(n=", Count, ")")), vjust = -0.2, size = 3) +
+  scale_fill_manual(values = c("Injured" = "#E74C3C", "Not Injured" = "#2ECC71")) +
+  labs(title = "Injury Prevalence in NBA Player-Season Records",
+       subtitle = "merged.csv (2022-23 Season)",
+       x = "", y = "Number of Records") +
+  theme_minimal(base_size = 10) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "none")
+```
+
+## Injury Type Breakdown
+
+```{r injury-types}
+injury_types <- merged %>%
+  filter(Injured) %>%
+  count(INJURED_TYPE, sort = TRUE) %>%
+  mutate(Pct = round(n / sum(n) * 100, 1))
+
+kable(injury_types, col.names = c("Injury Type", "Count", "Percentage (%)"),
+      caption = "Distribution of Injury Types (Injured Players Only)") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+
+ggplot(injury_types, aes(x = reorder(INJURED_TYPE, n), y = n, fill = INJURED_TYPE)) +
+  geom_col() +
+  geom_text(aes(label = paste0(n, " (", Pct, "%)")), hjust = -0.1, size = 3.5) +
+  coord_flip() +
+  scale_fill_brewer(palette = "Set2") +
+  labs(title = "NBA Injury Type Distribution",
+       subtitle = "2022-23 Season | n=1,214 injured records",
+       x = "Injury Type", y = "Count") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "none") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.25)))
+```
+
+**Key finding:** Sprained ankle (n=588, 48.4%) is the most prevalent injury type, consistent with Drakos et al. (2010), who reported ankle injuries as the leading injury category in the NBA across a 17-year longitudinal study. Knee-related conditions (sore knee + knee injury = 439 records) constitute a further 36.2% of injuries, highlighting the importance of knee-load features in the predictive model.
+
+---
+
+# Workload Distributions by Injury Status
+
+## Minutes Per Game
+
+```{r min-distribution}
+ggplot(merged, aes(x = MIN, fill = Injured)) +
+  geom_histogram(bins = 35, alpha = 0.75, position = "identity") +
+  scale_fill_manual(values = c("FALSE" = "#5DADE2", "TRUE" = "#E74C3C"),
+                    labels = c("Not Injured", "Injured")) +
+  labs(title = "Distribution of Minutes Per Game by Injury Status",
+       subtitle = "Higher minute loads may be associated with increased injury risk",
+       x = "Minutes Per Game (MIN)", y = "Count", fill = "Status") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+```{r min-boxplot}
+ggplot(merged, aes(x = Injured, y = MIN, fill = Injured)) +
+  geom_boxplot(outlier.alpha = 0.3, width = 0.4) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
+  scale_fill_manual(values = c("FALSE" = "#5DADE2", "TRUE" = "#E74C3C"),
+                    labels = c("Not Injured", "Injured")) +
+  scale_x_discrete(labels = c("Not Injured", "Injured")) +
+  labs(title = "Minutes Per Game: Injured vs. Not Injured Players",
+       subtitle = "Diamond = Mean; Box = IQR",
+       x = "Injury Status", y = "Minutes Per Game") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "none")
+
+# Statistical test
+t_result <- t.test(MIN ~ Injured, data = merged)
+cat(sprintf("\nWelch Two-Sample t-test: MIN by Injury Status\n"))
+cat(sprintf("Mean MIN (Not Injured): %.2f  |  Mean MIN (Injured): %.2f\n",
+            mean(merged$MIN[!merged$Injured], na.rm=TRUE),
+            mean(merged$MIN[merged$Injured], na.rm=TRUE)))
+cat(sprintf("t = %.3f, df = %.1f, p-value = %.4f\n",
+            t_result$statistic, t_result$parameter, t_result$p.value))
+```
+
+## Games Played
+
+```{r gp-boxplot}
+ggplot(merged, aes(x = Injured, y = GP, fill = Injured)) +
+  geom_boxplot(outlier.alpha = 0.3, width = 0.4) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
+  scale_fill_manual(values = c("FALSE" = "#58D68D", "TRUE" = "#E74C3C"),
+                    labels = c("Not Injured", "Injured")) +
+  scale_x_discrete(labels = c("Not Injured", "Injured")) +
+  labs(title = "Games Played: Injured vs. Not Injured Players",
+       x = "Injury Status", y = "Games Played (GP)") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "none")
+```
+
+## Usage Percentage
+
+```{r usg-plot}
+ggplot(merged, aes(x = USG_PCT, fill = Injured)) +
+  geom_density(alpha = 0.6) +
+  scale_fill_manual(values = c("FALSE" = "#5DADE2", "TRUE" = "#E74C3C"),
+                    labels = c("Not Injured", "Injured")) +
+  labs(title = "Usage Percentage Density: Injured vs. Not Injured",
+       subtitle = "Usage % measures the proportion of team plays used while on the court",
+       x = "Usage Percentage (USG_PCT)", y = "Density", fill = "Status") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+---
+
+# Correlation Analysis
+
+```{r correlation, fig.height=8, fig.width=9}
+# Select numeric features for correlation
+numeric_features <- merged %>%
+  select(AGE, PLAYER_HEIGHT_INCHES, PLAYER_WEIGHT, GP, MIN, USG_PCT, PACE, POSS,
+         FGA_PG, DRIVES, DRIVE_FGA, DRIVE_PASSES, DIST_MILES, AVG_SPEED,
+         PULL_UP_FGA, TOUCHES, FRONT_CT_TOUCHES, AVG_SEC_PER_TOUCH,
+         AVG_DRIB_PER_TOUCH, ELBOW_TOUCHES, POST_TOUCHES, PAINT_TOUCHES) %>%
+  mutate(across(everything(), as.numeric)) %>%
+  drop_na()
+
+cor_matrix <- cor(numeric_features, use = "pairwise.complete.obs")
+
+corrplot(cor_matrix,
+         method = "color",
+         type = "lower",
+         order = "original",
+         tl.cex = 0.7,
+         tl.col = "black",
+         tl.srt = 45,
+         col = colorRampPalette(c("#1A5276", "white", "#922B21"))(200),
+         title = "Pearson Correlation Matrix — NBA Workload & Performance Features",
+         mar = c(0, 0, 2, 0))
+
+```
+
+**Interpretation:** Strong positive correlations (r > 0.80) are observed among touch-based variables (`DRIVES`, `DRIVE_FGA`, `DRIVE_PASSES`, `TOUCHES`, `PAINT_TOUCHES`), and between `DIST_MILES` and `POSS`/`MIN`. These high inter-correlations indicate multicollinearity that must be addressed via regularisation (Ridge/Lasso) or dimensionality reduction (PCA) prior to model training. `AGE` and `PLAYER_WEIGHT` show weak correlations with workload variables, suggesting they provide complementary predictive information.
+
+---
+
+# Days Missed Distribution (Injured Players Only)
+
+```{r days-missed}
+injured_df <- merged %>%
+  filter(Injured) %>%
+  mutate(DAYS_MISSED = as.numeric(DAYS_MISSED)) %>%
+  filter(!is.na(DAYS_MISSED), DAYS_MISSED >= 0)
+
+cat(sprintf("Injured records with valid days-missed data: %d\n", nrow(injured_df)))
+cat(sprintf("Summary statistics:\n"))
+summary(injured_df$DAYS_MISSED)
+
+ggplot(injured_df, aes(x = DAYS_MISSED)) +
+  geom_histogram(bins = 40, fill = "#E74C3C", alpha = 0.8, color = "white") +
+  geom_vline(xintercept = median(injured_df$DAYS_MISSED, na.rm=TRUE),
+             linetype = "dashed", color = "#1A5276", size = 1) +
+  annotate("text", x = median(injured_df$DAYS_MISSED, na.rm=TRUE) + 3,
+           y = Inf, vjust = 1.5, label = paste("Median =", round(median(injured_df$DAYS_MISSED, na.rm=TRUE), 1), "days"),
+           color = "#1A5276", size = 3.5) +
+  labs(title = "Distribution of Days Missed Due to Injury",
+       subtitle = "Right-skewed distribution consistent with a mix of short and long-term injuries",
+       x = "Days Missed", y = "Count") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+**Interpretation:** The distribution is heavily right-skewed, with the majority of injuries resulting in short absences (≤14 days). This bimodal pattern (many short, a few long-term) supports the use of both binary classification (injured/not injured) and survival analysis (time-to-return) in the full modelling pipeline.
+
+---
+
+# Injury Trends in the Historical Dataset (2010–2020)
+
+```{r injury-trends}
+# Parse dates and extract year
+injuries_clean <- injuries %>%
+  mutate(Date = as.Date(Date),
+         Year = year(Date)) %>%
+  filter(!is.na(Date), !is.na(Relinquished), Relinquished != "")
+
+injuries_per_year <- injuries_clean %>%
+  count(Year) %>%
+  filter(Year >= 2010, Year <= 2020)
+
+ggplot(injuries_per_year, aes(x = Year, y = n)) +
+  geom_line(color = "#E74C3C", size = 1.2) +
+  geom_point(size = 3, color = "#E74C3C") +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.15, color = "#1A5276") +
+  scale_x_continuous(breaks = 2010:2020) +
+  labs(title = "NBA Injury Transactions Per Year (2010–2020)",
+       subtitle = "Blue band = linear trend with 95% CI",
+       x = "Year", y = "Number of Injury Records") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+```{r top-teams}
+# Top 10 teams by injury count
+top_teams <- injuries_clean %>%
+  count(Team, sort = TRUE) %>%
+  head(10)
+
+ggplot(top_teams, aes(x = reorder(Team, n), y = n, fill = n)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_gradient(low = "#F9E79F", high = "#E74C3C") +
+  labs(title = "Top 10 NBA Teams by Total Injury Records (2010–2020)",
+       x = "Team", y = "Total Injury Records", fill = "Count") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "none")
+```
+
+---
+
+# Summary and Feasibility Assessment
+
+```{r summary-table}
+summary_findings <- data.frame(
+  Finding = c(
+    "Total injury transaction records (2010-2020)",
+    "Player-season records in performance dataset",
+    "Injured player-seasons (2022-23)",
+    "Injury prevalence rate",
+    "Most common injury type",
+    "Median days missed per injury",
+    "Features available for modelling",
+    "Strong correlated feature clusters identified"
+  ),
+  Value = c(
+    "27,105",
+    "5,578",
+    "1,214",
+    "21.8%",
+    "Sprained ankle (48.4%)",
+    "~5–7 days (right-skewed)",
+    "22 numeric workload/performance features",
+    "Yes — touch metrics, distance, possessions"
+  )
+)
+
+kable(summary_findings, col.names = c("Finding", "Value"),
+      caption = "Summary of Exploratory Data Analysis Findings") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  column_spec(1, bold = TRUE, width = "55%") %>%
+  column_spec(2, width = "45%")
+```
+
+**Conclusion:** The two datasets together demonstrate strong feasibility for the proposed NBA injury risk prediction project. Key workload indicators (minutes played, games played, usage percentage, driving frequency, distance) vary meaningfully between injured and non-injured players, confirming their utility as predictive features. The injury prevalence rate of approximately 21.8% provides a manageable class imbalance that can be addressed via SMOTE oversampling or class-weighted model training. Multicollinearity among touch-based features is identified and will be addressed through feature selection and regularisation. The combination of a large historical injury transaction dataset (27k+ records) with granular per-player tracking data from the 2022–23 season provides a solid foundation for model development and validation in Assignment 3's full report.
+
+---
+
+# References
+
+Claudino, J. G., Capanema, D. de O., de Souza, T. V., Serrão, J. C., Lima Machado Pereira, A. C., & Nassis, G. P. (2019). Current approaches to the use of artificial intelligence for injury risk assessment and performance prediction in team sports: A systematic review. *Sports Medicine – Open, 5*(1), Article 28. https://doi.org/10.1186/s40798-019-0202-3
+
+Drakos, M. C., Domb, B., Starkey, C., Callahan, L., & Allen, A. A. (2010). Injury in the National Basketball Association: A 17-year overview. *Sports Health, 2*(4), 284–290. https://doi.org/10.1177/1941738109357303
+
+Gabbett, T. J. (2016). The training–injury prevention paradox: Should athletes be training smarter and harder? *British Journal of Sports Medicine, 50*(5), 273–280. https://doi.org/10.1136/bjsports-2015-095788
+
+Rossi, A., Pappalardo, L., Cintia, P., Iaia, F. M., Fernández, J., & Medina, D. (2018). Effective injury forecasting in soccer with GPS training data and machine learning. *PLOS ONE, 13*(7), Article e0201264. https://doi.org/10.1371/journal.pone.0201264
+
+Weiss, K. J., Allen, S. V., McGuigan, M. R., & Whatman, C. S. (2017). The relationship between training load and injury in men's professional basketball. *International Journal of Sports Physiology and Performance, 12*(9), 1238–1242. https://doi.org/10.1123/ijspp.2016-0726

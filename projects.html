@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Zekai Zheng's data science portfolio: Spark analytics, data integration, dimensional warehousing, R analysis and machine learning.">
+  <title>Zekai Zheng | Data & Analytics Portfolio</title>
+  <style>
+    :root{--paper:#f4f3ed;--ink:#142e30;--muted:#526766;--line:#d5dfd7;--green:#21614d;--mint:#dcebdc;--white:#fffef9}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,"Microsoft YaHei",sans-serif;line-height:1.65}a{color:var(--green);text-underline-offset:4px}a:hover{text-decoration-thickness:2px}button,a{touch-action:manipulation}button{font:inherit;cursor:pointer}a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #d48039;outline-offset:5px}.wrap{max-width:1180px;margin:auto;padding:0 32px}.skip{position:absolute;left:20px;top:-70px;padding:10px;background:white;z-index:5}.skip:focus{top:12px}
+    header{border-bottom:1px solid var(--line)}nav{min-height:90px;display:flex;justify-content:space-between;align-items:center;gap:20px}.identity{text-decoration:none;color:var(--ink);font-weight:700;letter-spacing:-.5px}.identity span{display:block;font-size:11px;letter-spacing:2px;color:var(--muted);font-weight:400}.nav-links{display:flex;gap:25px;align-items:center}.nav-links a{font-size:13px;text-decoration:none}.language{border:1px solid var(--line);background:transparent;border-radius:20px;padding:5px 13px;font-size:12px}
+    .hero{padding:75px 0 55px;display:grid;grid-template-columns:1.3fr 1fr;gap:65px;align-items:center}.eyebrow{font-size:11px;letter-spacing:2.5px;font-weight:700;text-transform:uppercase;color:var(--green);margin:0 0 20px}.eyebrow:before{content:"";display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:10px}h1{font-size:clamp(38px,5vw,64px);line-height:1.2;letter-spacing:-2.5px;font-weight:600;margin:0 0 24px;max-width:700px}.intro{color:var(--muted);max-width:570px;font-size:16px}.hero-note{font-size:12px;color:var(--muted);margin-top:30px}.hero-board{border:1px solid #c5d6c9;border-radius:16px;padding:30px;background:var(--mint);position:relative}.board-top{font-size:11px;letter-spacing:2px;display:flex;justify-content:space-between;padding-bottom:24px;border-bottom:1px solid #bccfbe}.flow{list-style:none;padding:0;margin:8px 0 0}.flow li{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #c4d6c6;font-size:14px}.flow li:last-child{border:0;padding-bottom:0}.flow b{font-size:12px;font-weight:400;color:var(--muted);margin-left:20px}.flow em{font-size:11px;font-style:normal;color:var(--green);margin-right:16px}.section-top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;padding:22px 0;border-top:1px solid var(--line)}h2{font-size:23px;font-weight:500;margin:0;letter-spacing:-.5px}.count{font-size:12px;color:var(--muted);margin-top:4px}.filters{display:flex;gap:7px;flex-wrap:wrap}.filters button{background:transparent;border:1px solid var(--line);border-radius:22px;padding:8px 16px;color:var(--muted);font-size:12px}.filters button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:white}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;padding:6px 0 55px}.card{border:1px solid var(--line);background:var(--white);border-radius:12px;padding:30px;display:flex;flex-direction:column;transition:border-color .2s,transform .2s}.card:hover{border-color:#8fac9b;transform:translateY(-2px)}.card[hidden]{display:none}.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:26px}.course{font-size:11px;font-weight:700;letter-spacing:1.8px}.category{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}.number{font-size:13px;color:#7b9083}.card h3{font-size:25px;font-weight:500;line-height:1.3;margin:0 0 8px;letter-spacing:-.4px}.subtitle{font-size:12px;color:var(--green);margin:0 0 20px}.card p.description{font-size:14px;color:var(--muted);margin:0 0 20px}.tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 25px}.tags span{font-size:10px;padding:3px 9px;background:#f0f3ee;border-radius:4px;color:#4d6460}.status{border-left:2px solid #d5a56d;font-size:12px;color:#66694e;padding-left:12px;margin:0 0 20px}.actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:auto;font-size:12px}.primary{background:var(--ink);color:white;padding:9px 14px;border-radius:5px;text-decoration:none}.secondary{text-decoration:none}.card details{margin-top:22px;border-top:1px solid #e5e9e2;padding-top:14px;font-size:12px;color:var(--muted)}summary{cursor:pointer;color:var(--ink)}details ul{padding-left:19px;line-height:1.9}details li{margin:5px 0}details p{margin:12px 0 0}.project-image{width:100%;height:auto;border-radius:4px;margin-top:16px}video{width:100%;margin-top:16px;border-radius:5px;background:#142e30}.collection-note{background:#e8eee5;border-radius:10px;padding:25px 30px;display:grid;grid-template-columns:180px 1fr;gap:35px;margin-bottom:65px}.collection-note h2{font-size:16px}.collection-note p{margin:0;font-size:13px;color:var(--muted)}footer{border-top:1px solid var(--line);padding:28px 0 40px;font-size:12px;color:var(--muted)}.footer-inner{display:flex;justify-content:space-between;gap:20px}.footer-inner a{text-decoration:none}html[lang="en"] .zh{display:none}html[lang="zh-CN"] .en{display:none}
+    @media(max-width:850px){.hero{grid-template-columns:1fr;gap:30px;padding-top:45px}.hero-board{max-width:580px}.section-top{align-items:flex-start;flex-direction:column}.card{padding:23px}.card h3{font-size:23px}.collection-note{grid-template-columns:1fr;gap:12px}}
+    @media(max-width:570px){.wrap{padding:0 20px}nav{min-height:80px}.nav-links{gap:12px}.nav-links .old-home{display:none}.identity{font-size:14px}.identity span{font-size:8px;letter-spacing:1.5px}.hero{padding:40px 0}.hero-board{padding:22px}h1{letter-spacing:-1.5px}.grid{grid-template-columns:1fr;gap:16px}.card-head{margin-bottom:20px}.filters{gap:6px}.filters button{padding:7px 12px}.collection-note{padding:22px;margin-bottom:40px}.footer-inner{flex-direction:column;gap:7px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card{transition:none}.card:hover{transform:none}}
+  </style>
+</head>
+<body>
+<a class="skip" href="#projects">Skip to projects</a>
+<header><nav class="wrap" aria-label="Main navigation">
+  <a class="identity" href="projects.html">Zekai Zheng<span>DATA &amp; ANALYTICS PORTFOLIO</span></a>
+  <div class="nav-links"><a class="old-home" href="index.html"><span class="zh">原主页</span><span class="en">Original home</span></a><a href="https://github.com/ZeyK1337">GitHub ↗</a><button class="language" id="language" type="button" aria-label="Switch to English">EN / 中文</button></div>
+</nav></header>
+<main class="wrap">
+  <section class="hero" aria-labelledby="intro-title">
+    <div><p class="eyebrow">Selected coursework · Monash University</p>
+      <h1 id="intro-title"><span class="zh">从数据，<br>到答案。</span><span class="en">From raw data<br>to useful answers.</span></h1>
+      <p class="intro"><span class="zh">我是 Zekai Zheng。这份作品集记录我在数据工程、商业分析与机器学习中的实践：整理复杂数据，构建可靠模型，并让分析结果清晰可读。</span><span class="en">I'm Zekai Zheng. This collection follows my work in data engineering, business analytics and machine learning: organising complex data, building models and communicating the results.</span></p>
+      <p class="hero-note"><span class="zh">5 组课程项目 · Python / SQL / R · 源码、报告与演示</span><span class="en">5 course collections · Python / SQL / R · Code, reports &amp; presentations</span></p>
+    </div>
+    <aside class="hero-board" aria-label="Areas of work"><div class="board-top"><span>THE PRACTICE</span><span>01 — 05</span></div><ol class="flow">
+      <li><span><em>01</em><span class="zh">大数据分析</span><span class="en">Big data analytics</span></span><b>PySpark</b></li>
+      <li><span><em>02</em><span class="zh">数据整合与质量</span><span class="en">Data integration</span></span><b>Python</b></li>
+      <li><span><em>03</em><span class="zh">维度建模与分析</span><span class="en">Dimensional modelling</span></span><b>Oracle · BI</b></li>
+      <li><span><em>04</em><span class="zh">探索性数据分析</span><span class="en">Exploratory analysis</span></span><b>R</b></li>
+      <li><span><em>05</em><span class="zh">回归与分类</span><span class="en">Regression &amp; classification</span></span><b>Machine learning</b></li>
+    </ol></aside>
+  </section>
+  <section id="projects" aria-labelledby="projects-title">
+    <div class="section-top"><div><h2 id="projects-title"><span class="zh">项目集</span><span class="en">Selected projects</span></h2><div class="count" id="count" aria-live="polite">05 / 05</div></div><div class="filters" aria-label="Filter projects">
+      <button type="button" data-filter="all" aria-pressed="true"><span class="zh">全部</span><span class="en">All work</span></button>
+      <button type="button" data-filter="engineering" aria-pressed="false"><span class="zh">数据工程</span><span class="en">Engineering</span></button>
+      <button type="button" data-filter="analysis" aria-pressed="false"><span class="zh">数据分析</span><span class="en">Analytics</span></button>
+      <button type="button" data-filter="ml" aria-pressed="false"><span class="zh">机器学习</span><span class="en">Machine learning</span></button>
+    </div></div>
+    <div class="grid">
+      <article class="card" data-categories="engineering analysis"><div class="card-head"><span class="course">FIT5202 <span class="number">/ 01</span></span><span class="category">Big data</span></div>
+        <h3><span class="zh">读懂城市停车与拥堵</span><span class="en">Understanding parking &amp; congestion</span></h3><p class="subtitle">Melbourne parking &amp; traffic analysis</p>
+        <p class="description"><span class="zh">使用 Spark 整理停车传感器与交通流量数据，分析停车活动、违规率和长时停留车位，并比较查询执行计划与优化方案。</span><span class="en">A Spark workflow joining parking-sensor and traffic data to examine activity, violations and long-stay bays, with execution-plan analysis and a query-optimisation comparison.</span></p>
+        <div class="tags"><span>PySpark</span><span>Spark SQL</span><span>DataFrames</span><span>Query optimisation</span></div>
+        <div class="actions"><a class="primary" href="https://github.com/ZeyK1337/ZeyK1337.github.io/blob/main/fit5202-parking-analysis.ipynb"><span class="zh">查看 Notebook</span><span class="en">View notebook</span> ↗</a><a class="secondary" href="fit5202-project.zip" download><span class="zh">下载项目</span><span class="en">Download project</span> ↓</a></div>
+        <details><summary><span class="zh">运行方式与数据</span><span class="en">Setup &amp; data</span></summary><p><span class="zh">包含分析笔记本与环境说明。运行时通过 A1_DATA_DIR 指向本地数据目录；约 9.2 GB 的原始传感器数据及大型 PDF 保留在本地。</span><span class="en">Includes the analytical notebook and setup notes. Set A1_DATA_DIR to your local dataset directory. The approximately 9.2 GB sensor dataset and oversized PDF remain local.</span></p><p><a href="https://github.com/ZeyK1337/ZeyK1337.github.io/blob/main/fit5202-README.md">README ↗</a></p></details>
+      </article>
+      <article class="card" data-categories="engineering analysis"><div class="card-head"><span class="course">FIT5196 <span class="number">/ 02</span></span><span class="category">Data wrangling</span></div>
+        <h3><span class="zh">把多源交易变成可靠数据</span><span class="en">Making commerce data consistent</span></h3><p class="subtitle">JSON / XML commerce data integration</p>
+        <p class="description"><span class="zh">将 JSON 与 XML 数据转换为统一的客户、商品、订单和订单明细表，检查跨源冲突、主外键及金额一致性，并生成交易趋势图。</span><span class="en">Standardises customers, products, orders and line items across JSON and XML, checks conflicts, keys and monetary totals, and visualises transaction trends.</span></p>
+        <div class="tags"><span>Python</span><span>pandas</span><span>Validation</span><span>Unit tests</span></div>
+        <p class="status"><span class="zh">Group029 小组项目 · 成员 1–2 整合工作版，尚未完成全部六表整合。</span><span class="en">Group029 collaboration · Members 1–2 working version; the full six-table integration is incomplete.</span></p>
+        <div class="actions"><a class="primary" href="https://github.com/ZeyK1337/ZeyK1337.github.io/blob/main/fit5196-data-integration.ipynb"><span class="zh">查看 Notebook</span><span class="en">View notebook</span> ↗</a><a class="secondary" href="fit5196-project.zip" download><span class="zh">下载项目</span><span class="en">Download project</span> ↓</a></div>
+        <details><summary><span class="zh">分析图表与项目说明</span><span class="en">Explore the analysis &amp; notes</span></summary><img class="project-image" src="fit5196-monthly-analysis.png" alt="Monthly order activity and revenue, from the original Group029 member-2 analysis" loading="lazy"><p><span class="zh">下载包保留源码、测试、字段映射与成员分工说明。原始交易数据和逐行导出不公开。</span><span class="en">The archive includes source, tests, mappings and contributor notes. Raw transaction records and row-level exports are not distributed.</span></p><p><a href="https://github.com/ZeyK1337/ZeyK1337.github.io/blob/main/fit5196-README.md">README ↗</a></p></details>
+      </article>
+      <article class="card" data-categories="engineering analysis"><div class="card-head"><span class="course">FIT5137 <span class="number">/ 03</span></span><span class="category">Data warehouse</span></div>
+        <h3><span class="zh">MonCity 维度数据仓库</span><span class="en">A dimensional warehouse for MonCity</span></h3><p class="subtitle">Operational records → dimensional models → insights</p>
+        <p class="description"><span class="zh">围绕自动驾驶车辆的预订、维护和事故数据，完成数据清理、两版维度模型设计、Oracle 实现与数据对账，并以 Power BI 展示分析结果。</span><span class="en">A report-led case study of autonomous-vehicle bookings, maintenance and accidents, covering cleaning, two dimensional designs, Oracle implementation, reconciliation and Power BI analysis.</span></p>
+        <div class="tags"><span>Oracle SQL</span><span>Star schema</span><span>Bridge tables</span><span>Power BI</span></div>
+        <div class="actions"><a class="primary" href="fit5137-warehouse-report.pdf"><span class="zh">阅读报告</span><span class="en">Read report</span> ↗</a><a class="secondary" href="fit5137-project.zip" download><span class="zh">下载项目</span><span class="en">Download project</span> ↓</a></div>
+        <details><summary><span class="zh">观看演示与成果范围</span><span class="en">Watch the presentation &amp; scope</span></summary><video controls preload="none" aria-label="MonCity warehouse presentation"><source src="fit5137-presentation.mp4" type="video/mp4">Your browser does not support video. <a href="fit5137-presentation.mp4">Download presentation</a></video><p><span class="zh">报告内含 SQL 示例；本地文件夹未提供独立 SQL 部署脚本或 PBIX 文件。视频保留原始演示内容。</span><span class="en">SQL examples are embedded in the report. Standalone deployment scripts and a PBIX file were not present in the supplied folder. The video is the original presentation.</span></p><p><a href="https://github.com/ZeyK1337/ZeyK1337.github.io/blob/main/fit5137-README.md">README ↗</a></p></details>
+      </article>
+      <article class="card" data-categories="analysis ml"><div class="card-head"><span class="course">FIT5145 <span class="number">/ 04</span></span><span class="category">Applied analytics</span></div>
+        <h3><span class="zh">用 R 探索现实问题</span><span class="en">Exploring real-world questions in R</span></h3><p class="subtitle">Sport · News · Property · Classification</p>
+        <p class="description"><span class="zh">从 NBA 伤病与球员负荷，到爱尔兰新闻趋势、维州房产与论坛标签预测，展示数据清理、可视化、统计分析和预测建模过程。</span><span class="en">Analyses NBA injuries and workload, Irish news trends, Victorian property and forum-label prediction, combining data cleaning, visualisation, statistics and predictive modelling.</span></p>
+        <div class="tags"><span>R Markdown</span><span>tidyverse</span><span>ggplot2</span><span>Predictive analysis</span></div>
+        <div class="actions"><a class="primary" href="fit5145-nba-report.pdf"><span class="zh">阅读 NBA 报告</span><span class="en">Read NBA report</span> ↗</a><a class="secondary" href="fit5145-project.zip" download><span class="zh">下载项目集</span><span class="en">Download collection</span> ↓</a></div>
+        <details><summary><span class="zh">更多分析与源码</span><span class="en">More analyses &amp; source</span></summary><ul><li><a href="https://github.com/ZeyK1337/ZeyK1337.github.io/blob/main/fit5145-nba-analysis.Rmd"><span class="zh">NBA 分析源码</span><span class="en">NBA analysis source</span> ↗</a></li><li><a href="fit5145-news-report.pdf"><span class="zh">爱尔兰新闻分析报告</span><span class="en">Ireland news analysis report</span> ↗</a></li><li><a href="fit5145-property-forum-report.pdf"><span class="zh">房产与论坛分析报告</span><span class="en">Property &amp; forum analysis report</span> ↗</a></li></ul><p><span class="zh">附带同一文件夹中的饮食与健康 Shiny 项目，按原说明独立标注为 FIT5147。Shiny 应用需在 R 环境运行。</span><span class="en">Also includes a diet-and-health Shiny app found in the same folder, separately labelled FIT5147 as in its original README. The app requires an R runtime.</span></p><p><a href="https://github.com/ZeyK1337/ZeyK1337.github.io/blob/main/fit5145-README.md">README ↗</a></p></details>
+      </article>
+      <article class="card" data-categories="ml"><div class="card-head"><span class="course">FIT5197 <span class="number">/ 05</span></span><span class="category">Machine learning</span></div>
+        <h3><span class="zh">从基线模型到集成学习</span><span class="en">From baselines to model ensembles</span></h3><p class="subtitle">Regression &amp; ordinal classification in R</p>
+        <p class="description"><span class="zh">围绕问卷数据开展回归与有序分类，比较线性模型、树模型及集成方法，记录特征工程、交叉验证、堆叠和分数融合的建模过程。</span><span class="en">Regression and ordinal classification on survey data, comparing linear baselines, tree models and ensembles, with feature engineering, cross-validation, stacking and score blending.</span></p>
+        <div class="tags"><span>R</span><span>XGBoost</span><span>Random Forest</span><span>Stacking</span></div>
+        <div class="actions"><a class="primary" href="https://github.com/ZeyK1337/ZeyK1337.github.io/blob/main/fit5197-modelling.ipynb"><span class="zh">查看 Notebook</span><span class="en">View notebook</span> ↗</a><a class="secondary" href="fit5197-project.zip" download><span class="zh">下载项目</span><span class="en">Download project</span> ↓</a></div>
+        <details><summary><span class="zh">报告与复现说明</span><span class="en">Report &amp; reproducibility</span></summary><p><a href="fit5197-modelling-report.pdf"><span class="zh">阅读原始建模报告</span><span class="en">Read the original modelling report</span> ↗</a></p><p><span class="zh">Notebook 使用 R 内核。下载包提供 R 脚本，训练及测试数据需另行取得。原记录中的成绩属于历史报告结果，本次发布未重新训练验证。</span><span class="en">The notebook uses an R kernel; standalone scripts are included. Training and test data must be supplied separately. Historical reported scores were not reproduced for this publication.</span></p><p><a href="https://github.com/ZeyK1337/ZeyK1337.github.io/blob/main/fit5197-README.md">README ↗</a></p></details>
+      </article>
+    </div>
+  </section>
+  <aside class="collection-note"><h2><span class="zh">关于这些项目</span><span class="en">About this collection</span></h2><p><span class="zh">这是一份课程实践作品集。每个下载包都附有内容范围、协作归属和运行说明；大型原始数据、课件及缓存不在公开包内。Notebook 已清除运行输出，原始报告和视频保留作者署名及提交信息。</span><span class="en">A curated record of coursework. Each archive explains its scope, collaboration and setup. Large source datasets, teaching handouts and caches are excluded. Notebook outputs are cleared; original reports and video retain their attribution and submission details.</span></p></aside>
+</main>
+<footer><div class="wrap footer-inner"><span>Zekai Zheng · Data &amp; Analytics</span><a href="https://github.com/ZeyK1337/ZeyK1337.github.io"><span class="zh">在 GitHub 查看项目文件</span><span class="en">Explore the repository</span> ↗</a></div></footer>
+<script>
+  const cards = [...document.querySelectorAll('.card')];
+  document.querySelectorAll('[data-filter]').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('[data-filter]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      cards.forEach(card => { card.hidden = button.dataset.filter !== 'all' && !card.dataset.categories.split(' ').includes(button.dataset.filter); });
+      document.getElementById('count').textContent = String(cards.filter(card => !card.hidden).length).padStart(2, '0') + ' / 05';
+    });
+  });
+  document.getElementById('language').addEventListener('click', () => {
+    const english = document.documentElement.lang !== 'en';
+    document.documentElement.lang = english ? 'en' : 'zh-CN';
+    document.getElementById('language').setAttribute('aria-label', english ? '切换为中文' : 'Switch to English');
+  });
+</script>
+</body>
+</html>
